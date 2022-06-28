@@ -1,0 +1,46 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="styles/table.css">
+</head>
+
+<body>
+    <br>
+    <h1> <span class="blue">Nächste Verbindungen</span></h1> 
+
+    <table class="container">
+        <thead>
+            <tr>
+                <th>
+                    <h1>Zug</h1>
+                </th>
+                <th>
+                    <h1>Von</h1>
+                </th>
+                <th>
+                    <h1>Nach</h1>
+                </th>
+                <th>
+                    <h1>Abfahrtszeit</h1>
+                </th>
+                <th>
+                    <h1>Gleis</h1>
+                </th>
+                <th>
+                    <h1>Umsteigen</h1>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>{{range .Items}}
+                <td>{{.Products}}</td>
+                <td>{{.From.Station.Name}}</td>
+                <td>{{.To.Station.Name}}</td>
+                <td>{{FormatTime .From.Departure.Time}}</td>
+                <td>{{.From.Platform}}</td>
+                <td>{{.Transfers}}</td>
+            </tr>{{end}}
+        </tbody>
+    </table>
+</body>
+</html>

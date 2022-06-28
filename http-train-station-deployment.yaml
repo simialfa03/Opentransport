@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: train-board
+spec:
+  selector:
+    matchLabels:
+      app: train-board
+  template:
+    metadata:
+      labels:
+        app: train-board
+    spec:
+      containers:
+        - name: train-board-container
+          image: simialfa/train-table
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8090
+              name: trainhttp
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: train-board
+spec:
+  selector:
+    app: train-board
+  ports:
+    - port: 8080
+      targetPort: trainhttp
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: train-board-ingress
+spec:
+  rules:
+    - host: trainboard.k3s.local
+      http:
+        paths:
+          - backend:
+              service: 
+                name: train-board
+                port: 
+                  number: 8080
+            pathType: ImplementationSpecific
+
