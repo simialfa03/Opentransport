@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"net/http"
 	"time"
 
@@ -19,6 +20,7 @@ type OpentransportClient interface {
 
 type TrainServer struct {
 	Client OpentransportClient
+	FS     fs.FS
 }
 
 func (t TrainServer) Get(origin, destination string) ([]opentransport.Connection, error) {
@@ -43,7 +45,7 @@ func (t TrainServer) ServeConnection(w http.ResponseWriter, req *http.Request) {
 			"FormatTime": func(t time.Time) string {
 				return t.Format("15:04")
 			},
-		}).ParseFiles("connection.html")
+		}).ParseFS(t.FS, "*.html")
 	if err != nil {
 		http.Error(w, "Unable to Parse Template", http.StatusInternalServerError)
 		return

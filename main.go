@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"embed"
+	"io/fs"
 	"log"
 	"net/http"
 	"time"
@@ -9,6 +11,9 @@ import (
 	"github.com/minderjan/opentransport-client/opentransport"
 	"skittle.ch/test/opentransport/train"
 )
+
+//go:embed static
+var static embed.FS
 
 type MockClient struct {
 }
@@ -22,19 +27,23 @@ func (m MockClient) Search(context.Context, string, string, time.Time) (*opentra
 }
 
 func main() {
+
+	fsys := fs.FS(static)
+	html, _ := fs.Sub(fsys, "static")
+
 	server := train.TrainServer{
 		Client: opentransport.NewClient().Connection,
+		FS:     html,
 	}
-	fs := http.FileServer(http.Dir("./styles"))
-	http.Handle("/styles/", http.StripPrefix("/styles/", fs))
 
+	fs := http.FileServer(http.FS(html))
+	http.Handle("/", fs)
 	http.HandleFunc("/connection", server.ServeConnection)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	//	http.ServeFile(w, r, "index.html")
+	// })
 
-	http.ListenAndServe(":8090", nil)
 	err := http.ListenAndServe(":8090", nil) // setting listening port
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
